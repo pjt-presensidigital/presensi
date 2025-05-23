@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Absensi Online dengan TTD</title>
+  <style>
+    body { font-family: Arial; margin: 2em; }
+    canvas { border: 1px solid #000; }
+  </style>
+</head>
+<body>
+  <h2>Form Absensi</h2>
+  <form id="absenForm">
+    <label>Nama:</label><br>
+    <input type="text" name="nama" required><br><br>
+
+    <label>Tanda Tangan:</label><br>
+    <canvas id="signature-pad" width="300" height="100"></canvas><br>
+    <button type="button" onclick="clearSignature()">Bersihkan TTD</button><br><br>
+
+    <input type="hidden" name="ttd" id="ttdInput">
+
+    <button type="submit">Kirim</button>
+  </form>
+
+  <script>
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+
+    canvas.addEventListener('mousedown', e => {
+      isDrawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (isDrawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      isDrawing = false;
+    });
+
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    document.getElementById('absenForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const dataURL = canvas.toDataURL();
+      document.getElementById('ttdInput').value = dataURL;
+      alert("Absensi berhasil (simulasi)");
+      console.log("Nama:", this.nama.value);
+      console.log("TTD:", dataURL);
+      this.reset();
+      clearSignature();
+    });
+  </script>
+</body>
+</html>
