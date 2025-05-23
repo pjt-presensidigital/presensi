@@ -1,179 +1,392 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Form Absensi</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 700px;
-      margin: 40px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    .header img {
-      width: 60px;
-      height: auto;
-    }
-    .header .company-info {
-      font-size: 16px;
-    }
-    .header .company-info h1 {
-      font-size: 20px;
-      margin: 0;
-      color: #333;
-    }
-    .header .company-info p {
-      margin: 2px 0;
-      color: #777;
-      font-size: 14px;
-    }
-    h2 {
-      text-align: center;
-      color: #222;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 500;
-    }
-    input, canvas {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 15px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .ttd-wrapper {
-      margin-top: 20px;
-    }
-    small {
-      color: #999;
-      font-size: 12px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Absensi Digital</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+        }
+        
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: var(--primary);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo-container {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo-container img {
+            width: 80%;
+            height: auto;
+        }
+        
+        .company-info h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .company-info p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .event-info {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .event-info h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 20px;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            width: 120px;
+            color: var(--dark);
+        }
+        
+        .info-value {
+            color: #555;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        .signature-container {
+            margin-top: 20px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        
+        .signature-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 150px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            cursor: crosshair;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background: #d5dbdb;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: #777;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <!-- Header Elegan -->
-    <div class="header">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Microsoft_logo.svg" alt="Logo Perusahaan" />
-      <div class="company-info">
-        <h1>PT Kemuda Teknologi Indonesia</h1>
-        <p>Inovasi Digital Masa Depan</p>
-      </div>
+    <div class="card">
+        <div class="card-header">
+            <div class="logo-container">
+                <img src="https://cdn-icons-png.flaticon.com/512/272/272525.png" alt="Company Logo">
+            </div>
+            <div class="company-info">
+                <h1>PT Digital Solusi Indonesia</h1>
+                <p>Innovating Your Digital Experience</p>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="event-info">
+                <h2>Informasi Acara</h2>
+                <div class="info-row">
+                    <span class="info-label">Nama Acara:</span>
+                    <span class="info-value">Seminar Transformasi Digital 2025</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tanggal:</span>
+                    <span class="info-value">15 Juni 2025</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Waktu:</span>
+                    <span class="info-value">09.00 - 12.00 WIB</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Tempat:</span>
+                    <span class="info-value">Ballroom Hotel Grand Indonesia, Jakarta</span>
+                </div>
+            </div>
+            
+            <form id="absensiForm">
+                <div class="form-group">
+                    <label for="nama">Nama Lengkap</label>
+                    <input type="text" id="nama" name="nama" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="unitKerja">Unit Kerja/Divisi</label>
+                    <input type="text" id="unitKerja" name="unitKerja" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="jabatan">Jabatan</label>
+                    <input type="text" id="jabatan" name="jabatan" required>
+                </div>
+                
+                <div class="signature-container">
+                    <div class="signature-label">
+                        <label>Tanda Tangan Digital</label>
+                        <small>Silakan tanda tangan di area bawah</small>
+                    </div>
+                    <canvas id="signaturePad"></canvas>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="clearSignature()">Hapus Tanda Tangan</button>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Kirim Absensi</button>
+                </div>
+            </form>
+            
+            <div class="footer">
+                <p>© 2025 PT Digital Solusi Indonesia. Form ini merupakan bukti kehadiran resmi.</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Informasi Acara -->
-    <h2>Form Absensi Kehadiran</h2>
-    <p><strong>Nama Acara:</strong> Seminar Transformasi Digital</p>
-    <p><strong>Waktu:</strong> 30 Mei 2025 | 10:00 - 12:00 WIB</p>
-    <p><strong>Tempat:</strong> Auditorium Kemuda HQ</p>
-
-    <!-- Form Absensi -->
-    <form id="absensiForm">
-      <div class="form-group">
-        <label for="nama">Nama:</label>
-        <input type="text" id="nama" name="nama" required>
-      </div>
-      <div class="form-group">
-        <label for="unitKerja">Unit Kerja:</label>
-        <input type="text" id="unitKerja" name="unitKerja" required>
-      </div>
-      <div class="form-group">
-        <label for="jabatan">Jabatan:</label>
-        <input type="text" id="jabatan" name="jabatan" required>
-      </div>
-      <div class="form-group ttd-wrapper">
-        <label for="ttd">Tanda Tangan:</label>
-        <canvas id="ttd" width="300" height="100" style="border:1px solid #ccc;"></canvas>
-        <small>Gunakan mouse atau jari untuk tanda tangan.</small><br>
-        <button type="button" onclick="clearCanvas()">Bersihkan Tanda Tangan</button>
-      </div>
-      <button type="submit">Kirim Absensi</button>
-    </form>
-  </div>
-
-  <script>
-    const canvas = document.getElementById("ttd");
-    const ctx = canvas.getContext("2d");
-    let drawing = false;
-
-    canvas.addEventListener("mousedown", () => drawing = true);
-    canvas.addEventListener("mouseup", () => {
-      drawing = false;
-      ctx.beginPath();
-    });
-    canvas.addEventListener("mousemove", draw);
-
-    function draw(e) {
-      if (!drawing) return;
-      const rect = canvas.getBoundingClientRect();
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = "#000";
-      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-    }
-
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    document.getElementById("absensiForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const data = {
-        nama: document.getElementById("nama").value,
-        unit_kerja: document.getElementById("unitKerja").value,
-        jabatan: document.getElementById("jabatan").value,
-        ttd: canvas.toDataURL()
-      };
-
-      fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.text())
-      .then(res => {
-        alert("Data berhasil dikirim!");
-        document.getElementById("absensiForm").reset();
-        clearCanvas();
-      })
-      .catch(err => alert("Gagal mengirim data: " + err));
-    });
-  </script>
+    <script>
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        
+        // Set canvas size properly
+        function resizeCanvas() {
+            const ratio = window.devicePixelRatio || 1;
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.style.width = canvas.offsetWidth + 'px';
+            canvas.style.height = canvas.offsetHeight + 'px';
+            ctx.scale(ratio, ratio);
+        }
+        
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Drawing functions
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('touchstart', startDrawing);
+        
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('touchmove', draw);
+        
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        function startDrawing(e) {
+            isDrawing = true;
+            draw(e);
+        }
+        
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            let x, y;
+            
+            if (e.type.includes('touch')) {
+                x = e.touches[0].clientX - rect.left;
+                y = e.touches[0].clientY - rect.top;
+            } else {
+                x = e.clientX - rect.left;
+                y = e.clientY - rect.top;
+            }
+            
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#2c3e50';
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+        
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+        
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        document.getElementById('absensiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nama = document.getElementById('nama').value.trim();
+            const unitKerja = document.getElementById('unitKerja').value.trim();
+            const jabatan = document.getElementById('jabatan').value.trim();
+            
+            if (!nama || !unitKerja || !jabatan) {
+                alert('Harap lengkapi semua data!');
+                return;
+            }
+            
+            if (canvas.toDataURL() === canvas.toDataURL('image/png', 0)) {
+                alert('Harap berikan tanda tangan!');
+                return;
+            }
+            
+            const ttdData = canvas.toDataURL();
+            
+            // Simulasi pengiriman data
+            alert('Absensi berhasil dikirim!\n\nNama: ' + nama + '\nUnit Kerja: ' + unitKerja + '\nJabatan: ' + jabatan);
+            
+            // Reset form
+            this.reset();
+            clearSignature();
+            
+            // Untuk implementasi nyata, gunakan:
+            /*
+            fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nama: nama,
+                    unit_kerja: unitKerja,
+                    jabatan: jabatan,
+                    ttd: ttdData
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert('Absensi berhasil dikirim!');
+                this.reset();
+                clearSignature();
+            })
+            .catch(error => {
+                alert('Terjadi kesalahan: ' + error.message);
+            });
+            */
+        });
+    </script>
 </body>
 </html>
