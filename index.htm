@@ -334,175 +334,98 @@
     </div>
 
     <script>
-        const canvas = document.getElementById('signaturePad');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let lastX = 0;
-        let lastY = 0;
+    // Canvas setup and drawing functions remain the same
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    
+    function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+        const width = canvas.offsetWidth;
+        const height = canvas.offsetHeight;
         
-        // Set canvas size properly
-        function resizeCanvas() {
-            const ratio = window.devicePixelRatio || 1;
-            const width = canvas.offsetWidth;
-            const height = canvas.offsetHeight;
-            
-            if (width !== canvas.width || height !== canvas.height) {
-                canvas.width = width * ratio;
-                canvas.height = height * ratio;
-                canvas.style.width = width + 'px';
-                canvas.style.height = height + 'px';
-                ctx.scale(ratio, ratio);
-                
-                // Set style for signature
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.strokeStyle = '#005f87';
-            }
+        if (width !== canvas.width || height !== canvas.height) {
+            canvas.width = width * ratio;
+            canvas.height = height * ratio;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#005f87';
+        }
+    }
+    
+    // ... keep all your existing drawing functions (startDrawing, draw, stopDrawing, etc.) ...
+
+    // Improved form submission
+    document.getElementById('absensiForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const nama = document.getElementById('nama').value.trim();
+        const unitKerja = document.getElementById('unitKerja').value.trim();
+        const jabatan = document.getElementById('jabatan').value.trim();
+        
+        // Validation
+        if (!nama || !unitKerja || !jabatan) {
+            showAlert('error', 'Harap lengkapi semua data!');
+            return;
         }
         
-        // Initialize canvas
-        function initCanvas() {
-            resizeCanvas();
-            
-            // Mouse events
-            canvas.addEventListener('mousedown', startDrawing);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDrawing);
-            canvas.addEventListener('mouseout', stopDrawing);
-            
-            // Touch events
-            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-            canvas.addEventListener('touchend', stopDrawing);
+        if (isCanvasBlank()) {
+            showAlert('error', 'Harap berikan tanda tangan!');
+            return;
         }
         
-        function handleTouchStart(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            const mouseEvent = new MouseEvent("mousedown", {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
-            
-            lastX = touch.clientX - rect.left;
-            lastY = touch.clientY - rect.top;
-            
-            canvas.dispatchEvent(mouseEvent);
-        }
+        // Get signature as PNG with white background
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.fillStyle = 'white';
+        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.drawImage(canvas, 0, 0);
+        const ttdData = tempCanvas.toDataURL('image/png');
         
-        function handleTouchMove(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            const mouseEvent = new MouseEvent("mousemove", {
-                clientX: touch.clientX,
-                clientY: touch.clientY
-            });
+        try {
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-text">Mengirim...</span>';
             
-            lastX = touch.clientX - rect.left;
-            lastY = touch.clientY - rect.top;
+            // Send data to Google Sheets
+            const response = await sendToGoogleSheets(nama, unitKerja, jabatan, ttdData);
             
-            canvas.dispatchEvent(mouseEvent);
-        }
-        
-        function startDrawing(e) {
-            isDrawing = true;
-            [lastX, lastY] = [e.offsetX, e.offsetY];
-        }
-        
-        function draw(e) {
-            if (!isDrawing) return;
-            
-            let x, y;
-            if (e.type.includes('touch')) {
-                const rect = canvas.getBoundingClientRect();
-                x = lastX;
-                y = lastY;
-            } else {
-                x = e.offsetX;
-                y = e.offsetY;
-            }
-            
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            
-            [lastX, lastY] = [x, y];
-        }
-        
-        function stopDrawing() {
-            isDrawing = false;
-        }
-        
-        function clearSignature() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-        
-        // Form submission
-        document.getElementById('absensiForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const nama = document.getElementById('nama').value.trim();
-            const unitKerja = document.getElementById('unitKerja').value.trim();
-            const jabatan = document.getElementById('jabatan').value.trim();
-            
-            // Validation
-            if (!nama || !unitKerja || !jabatan) {
-                showAlert('error', 'Harap lengkapi semua data!');
-                return;
-            }
-            
-            if (isCanvasBlank()) {
-                showAlert('error', 'Harap berikan tanda tangan!');
-                return;
-            }
-            
-            const ttdData = canvas.toDataURL();
-            
-            try {
-                // Show loading state
-                const submitBtn = this.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="loading-text">Mengirim...</span>';
-                
-                // Kirim data ke Google Sheets
-                await sendToGoogleSheets(nama, unitKerja, jabatan, ttdData);
-                
+            if (response.result === 'success') {
                 showAlert('success', 'Absensi berhasil dikirim!');
                 this.reset();
                 clearSignature();
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('error', 'Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
-            } finally {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Kirim Absensi';
+            } else {
+                throw new Error(response.message || 'Gagal mengirim data');
             }
-        });
-        
-        function isCanvasBlank() {
-            const blank = document.createElement('canvas');
-            blank.width = canvas.width;
-            blank.height = canvas.height;
-            return canvas.toDataURL() === blank.toDataURL();
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('error', `Terjadi kesalahan: ${error.message || 'Silakan coba lagi'}`);
+        } finally {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Kirim Absensi';
         }
+    });
+    
+    async function sendToGoogleSheets(nama, unitKerja, jabatan, ttd) {
+        // Your Web App URL - make sure it's deployed correctly
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwkZhYPinZxJ4-keJr9VPi3IVqoyKItooguRoD5YlGzkGSVT5WpCm0Sm1NBpjzpKE6f/exec';
         
-        function showAlert(type, message) {
-            // Implementasi alert yang lebih baik bisa menggunakan library atau custom modal
-            alert(message);
-        }
-        
-        async function sendToGoogleSheets(nama, unitKerja, jabatan, ttd) {
-            // Ganti URL ini dengan URL Web App Google Apps Script Anda
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbyLeo0gYOGqEnwnplgslrQAwtQUbYrD61QVYKnTDhGqIGpZ-HyCfyVTReyUx4aWPgE5/exec';
-            
+        try {
             const response = await fetch(scriptUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     nama: nama,
                     unit_kerja: unitKerja,
@@ -512,15 +435,41 @@
             });
             
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw new Error('Gagal terhubung ke server. Pastikan Anda online.');
         }
+    }
+    
+    function showAlert(type, message) {
+        // Replace with a better alert system if needed
+        alert(message);
         
-        // Initialize on load
-        window.addEventListener('load', initCanvas);
-        window.addEventListener('resize', resizeCanvas);
-    </script>
+        // Optional: Add visual feedback
+        const alertDiv = document.createElement('div');
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.left = '50%';
+        alertDiv.style.transform = 'translateX(-50%)';
+        alertDiv.style.padding = '12px 24px';
+        alertDiv.style.borderRadius = '8px';
+        alertDiv.style.backgroundColor = type === 'error' ? '#ff4444' : '#4CAF50';
+        alertDiv.style.color = 'white';
+        alertDiv.style.zIndex = '1000';
+        alertDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+        alertDiv.textContent = message;
+        
+        document.body.appendChild(alertDiv);
+        setTimeout(() => alertDiv.remove(), 3000);
+    }
+    
+    // Initialize on load
+    window.addEventListener('load', initCanvas);
+    window.addEventListener('resize', resizeCanvas);
+</script>
 </body>
 </html>
