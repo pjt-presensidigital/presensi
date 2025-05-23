@@ -1,102 +1,128 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Form Absensi</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
       max-width: 700px;
       margin: 40px auto;
-      padding: 20px;
-      border: 1px solid #ccc;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .kop-surat {
+    .header {
       display: flex;
       align-items: center;
       gap: 15px;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
-    .logo {
-      width: 80px;
+    .header img {
+      width: 60px;
       height: auto;
     }
-    .kop-teks {
-      text-align: center;
-      flex-grow: 1;
+    .header .company-info {
+      font-size: 16px;
     }
-    .kop-teks h1 {
+    .header .company-info h1 {
+      font-size: 20px;
       margin: 0;
-      font-size: 18px;
-      text-transform: uppercase;
+      color: #333;
     }
-    .kop-teks p {
+    .header .company-info p {
       margin: 2px 0;
-      font-size: 12px;
-    }
-    hr {
-      border: 1px solid black;
+      color: #777;
+      font-size: 14px;
     }
     h2 {
       text-align: center;
+      color: #222;
     }
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 15px;
+      font-weight: 500;
     }
-    input, select, canvas {
+    input, canvas {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
       box-sizing: border-box;
+      font-size: 14px;
     }
     button {
-      margin-top: 15px;
+      margin-top: 20px;
       padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .form-group {
+      margin-bottom: 15px;
     }
     .ttd-wrapper {
-      margin-top: 15px;
+      margin-top: 20px;
+    }
+    small {
+      color: #999;
+      font-size: 12px;
     }
   </style>
 </head>
 <body>
-
-  <!-- KOP SURAT -->
-  <div class="kop-surat">
-    <img src="logo.png" alt="Logo" class="logo">
-    <div class="kop-teks">
-      <h1>PEMERINTAH KOTA CONTOH</h1>
-      <p>Dinas Pendidikan dan Kebudayaan</p>
-      <p>Jl. Merdeka No. 123, Kota Contoh</p>
-      <p>Email: info@contoh.go.id | Telp: (021) 1234567</p>
+  <div class="container">
+    <!-- Header Elegan -->
+    <div class="header">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Microsoft_logo.svg" alt="Logo Perusahaan" />
+      <div class="company-info">
+        <h1>PT Kemuda Teknologi Indonesia</h1>
+        <p>Inovasi Digital Masa Depan</p>
+      </div>
     </div>
+
+    <!-- Informasi Acara -->
+    <h2>Form Absensi Kehadiran</h2>
+    <p><strong>Nama Acara:</strong> Seminar Transformasi Digital</p>
+    <p><strong>Waktu:</strong> 30 Mei 2025 | 10:00 - 12:00 WIB</p>
+    <p><strong>Tempat:</strong> Auditorium Kemuda HQ</p>
+
+    <!-- Form Absensi -->
+    <form id="absensiForm">
+      <div class="form-group">
+        <label for="nama">Nama:</label>
+        <input type="text" id="nama" name="nama" required>
+      </div>
+      <div class="form-group">
+        <label for="unitKerja">Unit Kerja:</label>
+        <input type="text" id="unitKerja" name="unitKerja" required>
+      </div>
+      <div class="form-group">
+        <label for="jabatan">Jabatan:</label>
+        <input type="text" id="jabatan" name="jabatan" required>
+      </div>
+      <div class="form-group ttd-wrapper">
+        <label for="ttd">Tanda Tangan:</label>
+        <canvas id="ttd" width="300" height="100" style="border:1px solid #ccc;"></canvas>
+        <small>Gunakan mouse atau jari untuk tanda tangan.</small><br>
+        <button type="button" onclick="clearCanvas()">Bersihkan Tanda Tangan</button>
+      </div>
+      <button type="submit">Kirim Absensi</button>
+    </form>
   </div>
-  <hr>
-
-  <!-- INFORMASI ACARA -->
-  <h2>Form Absensi Kehadiran</h2>
-  <p><strong>Nama Acara:</strong> Seminar Literasi Digital</p>
-  <p><strong>Waktu:</strong> 27 Mei 2025 | 09:00 - 12:00 WIB</p>
-  <p><strong>Tempat:</strong> Aula Gedung Serbaguna</p>
-
-  <!-- FORM -->
-  <form id="absensiForm">
-    <label for="nama">Nama:</label>
-    <input type="text" id="nama" name="nama" required>
-
-    <label for="unitKerja">Unit Kerja:</label>
-    <input type="text" id="unitKerja" name="unitKerja" required>
-
-    <label for="jabatan">Jabatan:</label>
-    <input type="text" id="jabatan" name="jabatan" required>
-
-    <label for="ttd">Tanda Tangan:</label>
-    <canvas id="ttd" width="300" height="100" style="border:1px solid #000;"></canvas>
-    <button type="button" onclick="clearCanvas()">Bersihkan Tanda Tangan</button>
-
-    <button type="submit">Kirim</button>
-  </form>
 
   <script>
     const canvas = document.getElementById("ttd");
@@ -104,7 +130,10 @@
     let drawing = false;
 
     canvas.addEventListener("mousedown", () => drawing = true);
-    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mouseup", () => {
+      drawing = false;
+      ctx.beginPath();
+    });
     canvas.addEventListener("mousemove", draw);
 
     function draw(e) {
@@ -146,6 +175,5 @@
       .catch(err => alert("Gagal mengirim data: " + err));
     });
   </script>
-
 </body>
 </html>
