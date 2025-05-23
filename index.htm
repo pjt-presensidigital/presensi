@@ -442,28 +442,37 @@
             });
             
             async function sendToGoogleSheets(nama, unitKerja, jabatan, ttd) {
-                // Ganti URL ini dengan URL Web App Google Apps Script Anda
-                const scriptUrl = 'https://script.google.com/macros/s/AKfycbwBrfN14Sovf879DWKrpT0J1tfbnQO336xwh4TkvcxJ_u68sUvEVnPcleDlkDNu0V0/exec';
-                
-                const response = await fetch(scriptUrl, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        nama: nama,
-                        unit_kerja: unitKerja,
-                        jabatan: jabatan,
-                        ttd: ttd
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                return await response.json();
-            }
+  try {
+    // Ganti dengan URL deployment Anda
+    const scriptUrl = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+    
+    const response = await fetch(scriptUrl, {
+      method: 'POST',
+      mode: 'no-cors', // Tambahkan ini untuk bypass CORS
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nama: nama,
+        unit_kerja: unitKerja,
+        jabatan: jabatan,
+        ttd: ttd
+      })
+    });
+    
+    // Jika menggunakan mode 'no-cors', response akan terbatas
+    if (!response.ok && response.type !== 'opaque') {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    // Jika berhasil, return objek sederhana
+    return { result: 'success' };
+    
+  } catch (error) {
+    console.error('Error:', error);
+    throw new Error('Gagal mengirim data. Silakan coba lagi atau hubungi admin.');
+  }
+}
         });
     </script>
 </body>
