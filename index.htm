@@ -186,7 +186,6 @@
             border-radius: 6px;
             border: 1px solid #e0e0e0;
             touch-action: none;
-            -webkit-tap-highlight-color: transparent;
         }
         
         .btn-group {
@@ -343,66 +342,70 @@
         
         // Set canvas size properly
         function resizeCanvas() {
-        const rect = canvas.getBoundingClientRect();
-        const ratio = window.devicePixelRatio || 1;
-        
-        // Set canvas size
-        canvas.width = rect.width * ratio;
-        canvas.height = rect.height * ratio;
-        canvas.style.width = rect.width + 'px';
-        canvas.style.height = rect.height + 'px';
-        
-        // Scale context
-        ctx.scale(ratio, ratio);
-        
-        // Set style
-        ctx.lineWidth = 2;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#005f87';
-    }
+            const ratio = window.devicePixelRatio || 1;
+            const width = canvas.offsetWidth;
+            const height = canvas.offsetHeight;
+            
+            if (width !== canvas.width || height !== canvas.height) {
+                canvas.width = width * ratio;
+                canvas.height = height * ratio;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                ctx.scale(ratio, ratio);
+                
+                // Set style for signature
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = '#005f87';
+            }
+        }
         
         // Initialize canvas
         function initCanvas() {
-        resizeCanvas();
-        
-        // Mouse events
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
-        
-        // Touch events - gunakan passive: false untuk preventDefault
-        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-        canvas.addEventListener('touchend', stopDrawing);
-    }
+            resizeCanvas();
+            
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', stopDrawing);
+        }
         
         function handleTouchStart(e) {
-        e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        lastX = (touch.clientX - rect.left) * (canvas.width / rect.width);
-        lastY = (touch.clientY - rect.top) * (canvas.height / rect.height);
-        isDrawing = true;
-    }
-    
-    function handleTouchMove(e) {
-        if (!isDrawing) return;
-        e.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const mouseEvent = new MouseEvent("mousedown", {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            
+            lastX = touch.clientX - rect.left;
+            lastY = touch.clientY - rect.top;
+            
+            canvas.dispatchEvent(mouseEvent);
+        }
         
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        
-        lastX = x;
-        lastY = y;
-    }
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const mouseEvent = new MouseEvent("mousemove", {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            
+            lastX = touch.clientX - rect.left;
+            lastY = touch.clientY - rect.top;
+            
+            canvas.dispatchEvent(mouseEvent);
+        }
         
         function startDrawing(e) {
             isDrawing = true;
