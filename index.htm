@@ -109,8 +109,8 @@
       <label for="nama">Nama Lengkap</label>
       <input type="text" name="nama" id="nama" required>
 
-      <label for="instansi">Instansi</label>
-      <input type="text" name="instansi" id="instansi" required>
+      <label for="unit_kerja">Unit Kerja</label>
+      <input type="text" name="unit_kerja" id="unit_kerja" required>
 
       <label for="jabatan">Jabatan</label>
       <input type="text" name="jabatan" id="jabatan" required>
@@ -157,14 +157,14 @@
     document.getElementById('absenForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const nama = document.getElementById('nama').value.trim();
-      const instansi = document.getElementById('instansi').value.trim();
+      const unit_kerja = document.getElementById('unit_kerja').value.trim();
       const jabatan = document.getElementById('jabatan').value.trim();
       const ttd = canvas.toDataURL();
 
       fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nama, instansi, jabatan, ttd })
+        body: JSON.stringify({ nama, unit_kerja, jabatan, ttd })
       })
       .then(res => res.text())
       .then(() => {
