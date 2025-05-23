@@ -2,181 +2,150 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Form Absensi</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Absensi</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f4f7f8;
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
       padding: 20px;
+      border: 1px solid #ccc;
+    }
+    .kop-surat {
       display: flex;
-      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 10px;
     }
-
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 100%;
+    .logo {
+      width: 80px;
+      height: auto;
     }
-
-    h2, h3 {
+    .kop-teks {
       text-align: center;
-      color: #2E86C1;
-      margin-top: 0;
+      flex-grow: 1;
     }
-
-    .info-box {
-      background: #ECF0F1;
-      border-left: 5px solid #2E86C1;
-      padding: 15px;
-      margin-bottom: 25px;
-      border-radius: 5px;
+    .kop-teks h1 {
+      margin: 0;
+      font-size: 18px;
+      text-transform: uppercase;
     }
-
-    .info-box p {
-      margin: 5px 0;
-      font-size: 15px;
+    .kop-teks p {
+      margin: 2px 0;
+      font-size: 12px;
     }
-
+    hr {
+      border: 1px solid black;
+    }
+    h2 {
+      text-align: center;
+    }
     label {
-      font-weight: bold;
-      margin-top: 10px;
       display: block;
-      color: #444;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    canvas {
-      border: 1px solid #ccc;
-      width: 100%;
-      height: 150px;
-      border-radius: 5px;
       margin-top: 10px;
     }
-
-    .button-row {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 15px;
+    input, select, canvas {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
     }
-
     button {
+      margin-top: 15px;
       padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      background: #2E86C1;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
     }
-
-    button:hover {
-      background: #1B4F72;
-    }
-
-    .note {
-      margin-top: 20px;
-      font-size: 0.85em;
-      color: #666;
-      text-align: center;
+    .ttd-wrapper {
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Form Absensi Kehadiran</h2>
 
-    <!-- INFO ACARA -->
-    <div class="info-box">
-      <p><strong>Nama Acara:</strong> Workshop Digital Marketing</p>
-      <p><strong>Waktu:</strong> 10 Juni 2025, 09.00 - 12.00 WIB</p>
-      <p><strong>Tempat:</strong> Aula Lantai 2, Gedung Serbaguna</p>
-    </div>
-
-    <!-- FORM PENGISI -->
-    <form id="absenForm">
-      <label for="nama">Nama Lengkap</label>
-      <input type="text" name="nama" id="nama" required>
-
-      <label for="unit_kerja">Unit Kerja</label>
-      <input type="text" name="unit_kerja" id="unit_kerja" required>
-
-      <label for="jabatan">Jabatan</label>
-      <input type="text" name="jabatan" id="jabatan" required>
-
-      <label>Tanda Tangan</label>
-      <canvas id="signature-pad"></canvas>
-
-      <div class="button-row">
-        <button type="button" onclick="clearSignature()">Bersihkan TTD</button>
-        <button type="submit">Kirim Absensi</button>
-      </div>
-    </form>
-
-    <div class="note">
-      * Data Anda akan tersimpan secara otomatis dan dapat diunduh sebagai laporan Excel.
+  <!-- KOP SURAT -->
+  <div class="kop-surat">
+    <img src="logo.png" alt="Logo" class="logo">
+    <div class="kop-teks">
+      <h1>PEMERINTAH KOTA CONTOH</h1>
+      <p>Dinas Pendidikan dan Kebudayaan</p>
+      <p>Jl. Merdeka No. 123, Kota Contoh</p>
+      <p>Email: info@contoh.go.id | Telp: (021) 1234567</p>
     </div>
   </div>
+  <hr>
+
+  <!-- INFORMASI ACARA -->
+  <h2>Form Absensi Kehadiran</h2>
+  <p><strong>Nama Acara:</strong> Seminar Literasi Digital</p>
+  <p><strong>Waktu:</strong> 27 Mei 2025 | 09:00 - 12:00 WIB</p>
+  <p><strong>Tempat:</strong> Aula Gedung Serbaguna</p>
+
+  <!-- FORM -->
+  <form id="absensiForm">
+    <label for="nama">Nama:</label>
+    <input type="text" id="nama" name="nama" required>
+
+    <label for="unitKerja">Unit Kerja:</label>
+    <input type="text" id="unitKerja" name="unitKerja" required>
+
+    <label for="jabatan">Jabatan:</label>
+    <input type="text" id="jabatan" name="jabatan" required>
+
+    <label for="ttd">Tanda Tangan:</label>
+    <canvas id="ttd" width="300" height="100" style="border:1px solid #000;"></canvas>
+    <button type="button" onclick="clearCanvas()">Bersihkan Tanda Tangan</button>
+
+    <button type="submit">Kirim</button>
+  </form>
 
   <script>
-    const canvas = document.getElementById('signature-pad');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
+    const canvas = document.getElementById("ttd");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
 
-    canvas.addEventListener('mousedown', e => {
-      isDrawing = true;
+    canvas.addEventListener("mousedown", () => drawing = true);
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    function draw(e) {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(e.offsetX, e.offsetY);
-    });
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
 
-    canvas.addEventListener('mousemove', e => {
-      if (isDrawing) {
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-      }
-    });
-
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseleave', () => isDrawing = false);
-
-    function clearSignature() {
+    function clearCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    document.getElementById('absenForm').addEventListener('submit', function(e) {
+    document.getElementById("absensiForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const nama = document.getElementById('nama').value.trim();
-      const unit_kerja = document.getElementById('unit_kerja').value.trim();
-      const jabatan = document.getElementById('jabatan').value.trim();
-      const ttd = canvas.toDataURL();
+      const data = {
+        nama: document.getElementById("nama").value,
+        unit_kerja: document.getElementById("unitKerja").value,
+        jabatan: document.getElementById("jabatan").value,
+        ttd: canvas.toDataURL()
+      };
 
-      fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nama, unit_kerja, jabatan, ttd })
+      fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
       })
       .then(res => res.text())
-      .then(() => {
-        alert('Terima kasih, absensi Anda berhasil!');
-        this.reset();
-        clearSignature();
+      .then(res => {
+        alert("Data berhasil dikirim!");
+        document.getElementById("absensiForm").reset();
+        clearCanvas();
       })
-      .catch(err => {
-        alert('Gagal mengirim data. Silakan coba lagi.');
-        console.error(err);
-      });
+      .catch(err => alert("Gagal mengirim data: " + err));
     });
   </script>
+
 </body>
 </html>
