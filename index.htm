@@ -497,27 +497,22 @@
         }
         
         async function sendToGoogleSheets(nama, unitKerja, jabatan, ttd) {
-  // Ganti URL ini dengan URL Web App dari Apps Script
           const scriptUrl = 'https://script.google.com/macros/s/AKfycbz5-RIReZSd1itcsR06N8n8osG8mOaCx0S7xzKzRPNXnhC6cfidcQsjVGxaXABh89bd/exec';
           
-          try {
-            const response = await fetch(scriptUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                nama: nama,
-                unit_kerja: unitKerja,
-                jabatan: jabatan,
-                ttd: ttd
-              })
-            });
-            
-            if (!response.ok) throw new Error('Gagal mengirim data');
-            return await response.json();
-          } catch (error) {
-            console.error('Error:', error);
-            throw error;
-          }
+          const response = await fetch(scriptUrl, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({
+              nama: nama,
+              unit_kerja: unitKerja,
+              jabatan: jabatan,
+              ttd: ttd.split(',')[1] // Hanya kirim bagian base64-nya
+            })
+          });
+          
+          return await response.json();
         }
         
         // Initialize on load
