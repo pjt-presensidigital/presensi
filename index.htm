@@ -2,26 +2,132 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Absensi Online dengan TTD</title>
+  <title>Form Absensi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; margin: 2em; }
-    canvas { border: 1px solid #000; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f7f8;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #2E86C1;
+      margin-top: 0;
+    }
+
+    .info-box {
+      background: #ECF0F1;
+      border-left: 5px solid #2E86C1;
+      padding: 15px;
+      margin-bottom: 25px;
+      border-radius: 5px;
+    }
+
+    .info-box p {
+      margin: 5px 0;
+      font-size: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+      color: #444;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      width: 100%;
+      height: 150px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background: #2E86C1;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #1B4F72;
+    }
+
+    .note {
+      margin-top: 20px;
+      font-size: 0.85em;
+      color: #666;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h2>Form Absensi</h2>
-  <form id="absenForm">
-    <label>Nama:</label><br>
-    <input type="text" name="nama" required><br><br>
+  <div class="container">
+    <h2>Form Absensi Kehadiran</h2>
 
-    <label>Tanda Tangan:</label><br>
-    <canvas id="signature-pad" width="300" height="100"></canvas><br>
-    <button type="button" onclick="clearSignature()">Bersihkan TTD</button><br><br>
+    <!-- INFO ACARA -->
+    <div class="info-box">
+      <p><strong>Nama Acara:</strong> Workshop Digital Marketing</p>
+      <p><strong>Waktu:</strong> 10 Juni 2025, 09.00 - 12.00 WIB</p>
+      <p><strong>Tempat:</strong> Aula Lantai 2, Gedung Serbaguna</p>
+    </div>
 
-    <input type="hidden" name="ttd" id="ttdInput">
+    <!-- FORM PENGISI -->
+    <form id="absenForm">
+      <label for="nama">Nama Lengkap</label>
+      <input type="text" name="nama" id="nama" required>
 
-    <button type="submit">Kirim</button>
-  </form>
+      <label for="instansi">Instansi</label>
+      <input type="text" name="instansi" id="instansi" required>
+
+      <label for="jabatan">Jabatan</label>
+      <input type="text" name="jabatan" id="jabatan" required>
+
+      <label>Tanda Tangan</label>
+      <canvas id="signature-pad"></canvas>
+
+      <div class="button-row">
+        <button type="button" onclick="clearSignature()">Bersihkan TTD</button>
+        <button type="submit">Kirim Absensi</button>
+      </div>
+    </form>
+
+    <div class="note">
+      * Data Anda akan tersimpan secara otomatis dan dapat diunduh sebagai laporan Excel.
+    </div>
+  </div>
 
   <script>
     const canvas = document.getElementById('signature-pad');
@@ -41,9 +147,8 @@
       }
     });
 
-    canvas.addEventListener('mouseup', () => {
-      isDrawing = false;
-    });
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseleave', () => isDrawing = false);
 
     function clearSignature() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -51,13 +156,26 @@
 
     document.getElementById('absenForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const dataURL = canvas.toDataURL();
-      document.getElementById('ttdInput').value = dataURL;
-      alert("Absensi berhasil (simulasi)");
-      console.log("Nama:", this.nama.value);
-      console.log("TTD:", dataURL);
-      this.reset();
-      clearSignature();
+      const nama = document.getElementById('nama').value.trim();
+      const instansi = document.getElementById('instansi').value.trim();
+      const jabatan = document.getElementById('jabatan').value.trim();
+      const ttd = canvas.toDataURL();
+
+      fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nama, instansi, jabatan, ttd })
+      })
+      .then(res => res.text())
+      .then(() => {
+        alert('Terima kasih, absensi Anda berhasil!');
+        this.reset();
+        clearSignature();
+      })
+      .catch(err => {
+        alert('Gagal mengirim data. Silakan coba lagi.');
+        console.error(err);
+      });
     });
   </script>
 </body>
