@@ -161,6 +161,7 @@
             border-radius: 8px;
             padding: 16px;
             background-color: var(--light);
+            position: relative;
         }
         
         .signature-header {
@@ -179,13 +180,19 @@
             color: var(--gray);
         }
         
-        canvas {
+        #signaturePad {
             width: 100%;
-            height: 120px;
+            height: 200px;
             background: var(--white);
             border-radius: 6px;
             border: 1px solid #e0e0e0;
             touch-action: none;
+        }
+        
+        .signature-actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 12px;
         }
         
         .btn-group {
@@ -230,6 +237,27 @@
             font-size: 12px;
             color: var(--gray);
             padding: 0 8px;
+        }
+
+        /* Loading spinner */
+        .loading-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .loading-text::after {
+            content: "";
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Desktop Optimization */
@@ -314,16 +342,16 @@
                 <div class="signature-container">
                     <div class="signature-header">
                         <label>Tanda Tangan Digital</label>
-                        <span class="signature-note">Gunakan jari untuk tanda tangan</span>
+                        <span class="signature-note">Gunakan jari/mouse untuk tanda tangan</span>
                     </div>
                     <canvas id="signaturePad"></canvas>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-secondary" onclick="clearSignature()">Hapus</button>
+                    <div class="signature-actions">
+                        <button type="button" class="btn btn-secondary" id="clearSignature">Hapus Tanda Tangan</button>
                     </div>
                 </div>
                 
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">Kirim Absensi</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Kirim Absensi</button>
                 </div>
             </form>
             
@@ -333,143 +361,110 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script>
-    // Canvas setup and drawing functions remain the same
-    const canvas = document.getElementById('signaturePad');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
-    
-    function resizeCanvas() {
-        const ratio = window.devicePixelRatio || 1;
-        const width = canvas.offsetWidth;
-        const height = canvas.offsetHeight;
-        
-        if (width !== canvas.width || height !== canvas.height) {
-            canvas.width = width * ratio;
-            canvas.height = height * ratio;
-            canvas.style.width = width + 'px';
-            canvas.style.height = height + 'px';
-            ctx.scale(ratio, ratio);
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#005f87';
-        }
-    }
-    
-    // ... keep all your existing drawing functions (startDrawing, draw, stopDrawing, etc.) ...
-
-    // Improved form submission
-    document.getElementById('absensiForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const nama = document.getElementById('nama').value.trim();
-        const unitKerja = document.getElementById('unitKerja').value.trim();
-        const jabatan = document.getElementById('jabatan').value.trim();
-        
-        // Validation
-        if (!nama || !unitKerja || !jabatan) {
-            showAlert('error', 'Harap lengkapi semua data!');
-            return;
-        }
-        
-        if (isCanvasBlank()) {
-            showAlert('error', 'Harap berikan tanda tangan!');
-            return;
-        }
-        
-        // Get signature as PNG with white background
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.fillStyle = 'white';
-        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        tempCtx.drawImage(canvas, 0, 0);
-        const ttdData = tempCanvas.toDataURL('image/png');
-        
-        try {
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="loading-text">Mengirim...</span>';
-            
-            // Send data to Google Sheets
-            const response = await sendToGoogleSheets(nama, unitKerja, jabatan, ttdData);
-            
-            if (response.result === 'success') {
-                showAlert('success', 'Absensi berhasil dikirim!');
-                this.reset();
-                clearSignature();
-            } else {
-                throw new Error(response.message || 'Gagal mengirim data');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert('error', `Terjadi kesalahan: ${error.message || 'Silakan coba lagi'}`);
-        } finally {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Kirim Absensi';
-        }
-    });
-    
-    async function sendToGoogleSheets(nama, unitKerja, jabatan, ttd) {
-        // Your Web App URL - make sure it's deployed correctly
-        const scriptUrl = 'https://script.google.com/macros/s/AKfycbyONcBW7ljjT3TNSFzk878iYhDSBGAmyPpOXXL0jsVR1s1ZSeGL-THBNm35jju2ohSN/exec';
-        
-        try {
-            const response = await fetch(scriptUrl, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    nama: nama,
-                    unit_kerja: unitKerja,
-                    jabatan: jabatan,
-                    ttd: ttd
-                })
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize signature pad
+            const canvas = document.getElementById('signaturePad');
+            const signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 95, 135)',
+                minWidth: 1,
+                maxWidth: 3,
             });
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Handle window resize
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext('2d').scale(ratio, ratio);
+                signaturePad.clear(); // Clear on resize
             }
             
-            return await response.json();
-        } catch (error) {
-            console.error('Fetch error:', error);
-            throw new Error('Gagal terhubung ke server. Pastikan Anda online.');
-        }
-    }
-    
-    function showAlert(type, message) {
-        // Replace with a better alert system if needed
-        alert(message);
-        
-        // Optional: Add visual feedback
-        const alertDiv = document.createElement('div');
-        alertDiv.style.position = 'fixed';
-        alertDiv.style.top = '20px';
-        alertDiv.style.left = '50%';
-        alertDiv.style.transform = 'translateX(-50%)';
-        alertDiv.style.padding = '12px 24px';
-        alertDiv.style.borderRadius = '8px';
-        alertDiv.style.backgroundColor = type === 'error' ? '#ff4444' : '#4CAF50';
-        alertDiv.style.color = 'white';
-        alertDiv.style.zIndex = '1000';
-        alertDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
-        alertDiv.textContent = message;
-        
-        document.body.appendChild(alertDiv);
-        setTimeout(() => alertDiv.remove(), 3000);
-    }
-    
-    // Initialize on load
-    window.addEventListener('load', initCanvas);
-    window.addEventListener('resize', resizeCanvas);
-</script>
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            
+            // Clear button
+            document.getElementById('clearSignature').addEventListener('click', function() {
+                signaturePad.clear();
+            });
+            
+            // Form submission
+            document.getElementById('absensiForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const nama = document.getElementById('nama').value.trim();
+                const unitKerja = document.getElementById('unitKerja').value.trim();
+                const jabatan = document.getElementById('jabatan').value.trim();
+                
+                // Validation
+                if (!nama || !unitKerja || !jabatan) {
+                    alert('Harap lengkapi semua data!');
+                    return;
+                }
+                
+                if (signaturePad.isEmpty()) {
+                    alert('Harap berikan tanda tangan!');
+                    return;
+                }
+                
+                // Get signature data
+                const ttdData = signaturePad.toDataURL('image/png');
+                
+                try {
+                    // Show loading state
+                    const submitBtn = document.getElementById('submitBtn');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="loading-text">Mengirim...</span>';
+                    
+                    // Send data to Google Sheets
+                    const response = await sendToGoogleSheets(nama, unitKerja, jabatan, ttdData);
+                    
+                    if (response.result === 'success') {
+                        alert('Absensi berhasil dikirim!');
+                        this.reset();
+                        signaturePad.clear();
+                    } else {
+                        throw new Error(response.message || 'Gagal mengirim data');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert(`Terjadi kesalahan: ${error.message || 'Silakan coba lagi'}`);
+                } finally {
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Kirim Absensi';
+                    }
+                }
+            });
+            
+            async function sendToGoogleSheets(nama, unitKerja, jabatan, ttd) {
+                // Ganti URL ini dengan URL Web App Google Apps Script Anda
+                const scriptUrl = 'https://script.google.com/macros/s/AKfycbyONcBW7ljjT3TNSFzk878iYhDSBGAmyPpOXXL0jsVR1s1ZSeGL-THBNm35jju2ohSN/exec';
+                
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nama: nama,
+                        unit_kerja: unitKerja,
+                        jabatan: jabatan,
+                        ttd: ttd
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            }
+        });
+    </script>
 </body>
 </html>
